@@ -29,38 +29,6 @@
 
 #define IS_NUMBER(num) ((num) - (num) == 0)
 
-enum exceptions {INF_ROOTS_ERR, OUT_OF_ROOTS_RANGE};
-
-/*!
-* Класс, предназначенный для обработки ошибок.
-*/
-
-class Exception {
-    exceptions err;
-public:
-
-    /*!
-    * Создает объект исключения.
-    * \param err Код ошибки
-    */
-
-    Exception (exceptions err) {
-        this -> err = err;
-    }
-
-    /*!
-    * Печатает сообщение об ошибке.
-    */
-
-    void print () {
-        if (err == INF_ROOTS_ERR) {
-            std::cout << "There's infinite roots!\n";
-        } else if (err == OUT_OF_ROOTS_RANGE) {
-            std::cout << "Number of root is out of range!\n";
-        }
-    }
-};
-
 bool isZero (double num) {
     return abs (num) < EPS;
 }
