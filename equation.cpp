@@ -7,6 +7,7 @@
 
 #define EPS 0.000001
 #define INF_ROOTS -1
+#define ERROR -2
 #define KOEFFS_NUM 3
 
 #define TEST(func, res)                                 \
@@ -25,6 +26,8 @@
         array[1] = b;           \
         array[2] = c;           \
     } while (0)
+
+#define IS_NUMBER(num) ((num) - (num) == 0)
 
 enum exceptions {INF_ROOTS_ERR, OUT_OF_ROOTS_RANGE};
 
@@ -69,12 +72,12 @@ const double * solverInit () {
     while (incorrectInput) {
         incorrectInput = false;
         for (int i = 0; i < KOEFFS_NUM; i++) {
-            int num = 0;
-            if ((num = scanf ("%lg", koeff + i)) == EOF) { //TODO
+            int read = 0;
+            if ((read = scanf ("%lg", koeff + i)) == EOF) {
                 incorrectInput = true;
                 printf ("Incorrect input! Try again\n");
                 break;
-            } else if (num == 0) {
+            } else if (read == 0) {
                 i --;
                 char a;
                 scanf("%c", &a);
@@ -106,6 +109,12 @@ double discriminant (const double koeff [KOEFFS_NUM]) {
 int solve (const double koeff [KOEFFS_NUM], double * roots, bool print = true) {
     int numOfRoots = 0;
     roots = NULL;
+    for (int i = 0; i < KOEFFS_NUM; i++) {
+        if (!IS_NUMBER(koeff[i])) {
+            printf ("ERROR: Impossible values of %d coefficient!", i + 1);
+            return ERROR;
+        }
+    }
     if (isZero(koeff[0])) {
         if(isZero(koeff[1])) {
             if (isZero(koeff[2])) {
@@ -129,6 +138,10 @@ int solve (const double koeff [KOEFFS_NUM], double * roots, bool print = true) {
         }
     } else /* koeff[0] != 0 */ {
         double d = discriminant (koeff);
+        if (!IS_NUMBER(d)) {
+            printf ("ERROR: Impossible to calculate the discriminant!\n");
+            return ERROR;
+        }
         if (isZero(d)) {
             numOfRoots = 1;
             roots = new double [numOfRoots];
@@ -178,9 +191,10 @@ void testDiscriminant (const double koeff [KOEFFS_NUM], const double expected) {
 
 void testSolve (const double koeff [KOEFFS_NUM], int num, const double * expected) {
     double actual [2];
-    assert ((INF_ROOTS <= num) && (num <= 2));
-    printf ("testSolve: Testing if size of the 'expected' param equals to specified number of roots.\n");
-    TEST (sizeof (expected), num);
+    if ((INF_ROOTS > num) || (num > 2)) {
+        printf ("ERROR: Number of roots is out of range!");
+        return;
+    }
     printf ("testSolve: Testing if calculated number of roots equals to specified one.\n");
     TEST (solve (koeff, actual, false), num);
     if ((num != 0) && (num != INF_ROOTS) && (sizeof (actual) == num)) {
